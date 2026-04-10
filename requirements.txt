@@ -1,18 +1,5 @@
 # cardiac_agent/requirements.txt
 # Python 3.10 + PyTorch 2.2.2 + CUDA 12.1
-#
-# 安装命令（一条）：
-#   pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu121
-#
-# CPU 模式（没有 GPU）：
-#   pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
-
-# ── PyTorch ──────────────────────────────────────────────────────────────────
-# pip 会优先去 --extra-index-url 找带 cu121 后缀的 whl，找不到再去 PyPI
-# 所以这里写版本号即可，不需要硬编码 URL
-torch==2.2.2
-torchvision==0.17.2
-torchaudio==2.2.2
 
 # ── Transformers 生态 ─────────────────────────────────────────────────────────
 transformers==4.40.2
