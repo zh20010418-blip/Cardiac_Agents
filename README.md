@@ -36,7 +36,7 @@
 ## 项目结构
 
 ```
-cardiac_agent/
+cardiac_agents/
 ├── config/config.py          # 全局配置（模型路径、超参数）
 ├── graph/
 │   ├── state.py              # AgentState：贯穿流水线的共享状态
