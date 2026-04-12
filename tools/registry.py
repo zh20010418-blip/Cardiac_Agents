@@ -101,29 +101,40 @@ class ToolDispatcher:
         """
         从 LLM 输出中提取工具调用 JSON。
         LLM 可能在 JSON 前后输出一些思考文字，需要鲁棒地提取。
-
+ 
         Returns:
             {"tool": "...", "args": {...}} 或 None（没有工具调用）
         """
-        # 尝试提取 ```json ... ``` 代码块
+        # 第一级：提取 ```json 代码块
         if "```json" in llm_output:
             start = llm_output.find("```json") + 7
             end = llm_output.find("```", start)
             json_str = llm_output[start:end].strip()
-        # 尝试直接提取 { } 块
-        elif "{" in llm_output and "}" in llm_output:
-            start = llm_output.find("{")
-            end = llm_output.rfind("}") + 1
-            json_str = llm_output[start:end]
-        else:
-            return None  # 没有工具调用
-
-        try:
-            call = json.loads(json_str)
-            if "tool" in call and "args" in call:
-                return call
-        except json.JSONDecodeError as e:
-            logger.warning(f"工具调用 JSON 解析失败: {e}\n原文: {json_str}")
+            try:
+                call = json.loads(json_str)
+                if "tool" in call and "args" in call:
+                    return call
+            except json.JSONDecodeError as e:
+                logger.warning(f"第一级 JSON 解析失败: {e}")
+ 
+        # 第二级：从每个 { 位置开始，逐步尝试解析，兼容嵌套 JSON
+        import re
+        brace_starts = [m.start() for m in re.finditer(r"\{", llm_output)]
+        brace_ends = [i + 1 for i, c in enumerate(llm_output) if c == "}"]
+ 
+        for start_pos in brace_starts:
+            for end_pos in reversed(brace_ends):
+                if end_pos <= start_pos:
+                    continue
+                try:
+                    call = json.loads(llm_output[start_pos:end_pos])
+                    if "tool" in call and "args" in call:
+                        return call
+                    break  # 解析成功但字段不对，换下一个起点
+                except json.JSONDecodeError:
+                    continue
+ 
+        logger.warning(f"所有策略均未提取到工具调用 JSON，原文片段: {llm_output[:100]}")
         return None
 
     def execute(self, tool_name: str, args: dict) -> str:
