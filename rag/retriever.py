@@ -145,7 +145,7 @@ class FAISSRetriever:
         self.embed_dim = self.embedder.get_sentence_embedding_dimension()
 
         self.chunker = HierarchicalChunker()
-        self.index: Optional[faiss.Index] = None
+        self.index = None
         self.chunks: list[dict] = []
 
         # 尝试加载已有索引
