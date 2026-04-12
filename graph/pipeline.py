@@ -285,3 +285,15 @@ class CardiacDiagnosisPipeline:
         lines.append("=" * 60)
 
         return "\n".join(lines)
+
+if __name__ == "__main__":
+    # 演示模式：使用模拟数据跑通流程
+    pipeline = CardiacDiagnosisPipeline()
+    result = pipeline.run(
+        patient_info={"age": 62, "gender": "男", "chief_complaint": "胸闷"},
+        ecg_image_paths=["/data/ecg/001.png"],
+        echo_paths=["/data/echo/001.mp4"],
+        user_query="请帮我分析这位患者的心脏情况",
+    )
+    
+    print(result.diagnosis_report.primary_diagnosis)
